@@ -273,10 +273,10 @@ export default function Catalogo() {
               const color = COLORS[i % COLORS.length];
               return (
                 <div key={product.id} className={`rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${card}`}>
-                  <div className={`bg-gradient-to-br ${color.bg} h-64 flex items-center justify-center overflow-hidden cursor-pointer`}
+                  <div className={`bg-gradient-to-br ${color.bg} h-80 flex items-center justify-center overflow-hidden cursor-pointer`}
                     onClick={() => { setProductoDetalle(product); setFotoActiva(0); }}>
                     {product.imageUrl
-                      ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                      ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
                       : null}
                     <span className={`text-6xl ${product.imageUrl ? "hidden" : "flex"} items-center justify-center w-full h-full`}>{product.emoji || "🛍️"}</span>
                   </div>
@@ -480,9 +480,9 @@ export default function Catalogo() {
             <div className="max-w-2xl mx-auto w-full px-4 py-6 space-y-5">
               {/* Galería */}
               <div>
-                <div className={`bg-gradient-to-br ${color.bg} rounded-2xl overflow-hidden h-72 flex items-center justify-center`}>
+                <div className={`bg-gradient-to-br ${color.bg} rounded-2xl overflow-hidden h-96 flex items-center justify-center`}>
                   {fotos.length > 0
-                    ? <img src={fotos[fotoActiva]} alt={p.name} className="w-full h-full object-cover" />
+                    ? <img src={fotos[fotoActiva]} alt={p.name} className="w-full h-full object-contain" />
                     : <span className="text-8xl">{p.emoji || "🛍️"}</span>}
                 </div>
                 {fotos.length > 1 && (
