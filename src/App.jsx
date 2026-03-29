@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const SECRET_PIN = "1234"; // 🔐 Cambia este PIN por el tuyo
+const SECRET_PIN = "1875"; // 🔐 Cambia este PIN por el tuyo
 
 const COLORS = [
   { bg: "from-pink-500 to-rose-500", light: "bg-pink-100 text-pink-700", accent: "#f43f5e" },
@@ -203,6 +203,8 @@ export default function Catalogo() {
             )}
           </button>
 
+          <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-10 object-contain" />
+
           <input
             className={`flex-1 max-w-xs px-4 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`}
             placeholder="Buscar productos..."
@@ -238,7 +240,7 @@ export default function Catalogo() {
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-violet-600 via-pink-500 to-amber-400 py-8 px-4 text-white text-center">
-        <h1 className="text-3xl sm:text-4xl font-black mb-1"><span style={{color:"#ff2222"}}>B</span>3D Studio 🎉</h1>
+        <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-20 mx-auto mb-2 object-contain drop-shadow-lg" />
         <p className="text-white/80 text-sm">{products.length} productos · 🚚 6 unidades = Envío gratis · 12 unidades = Envío gratis + 15% desc.</p>
         {isAdmin && (
           <button onClick={() => requirePin("add")} className="mt-4 sm:hidden px-6 py-2 bg-white text-violet-600 font-black rounded-xl text-sm">
