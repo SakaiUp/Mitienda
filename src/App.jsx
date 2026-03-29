@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const SECRET_PIN = "1875"; // 🔐 Cambia este PIN por el tuyo
+const SECRET_PIN = "1234"; // 🔐 Cambia este PIN por el tuyo
 
 const COLORS = [
   { bg: "from-pink-500 to-rose-500", light: "bg-pink-100 text-pink-700", accent: "#f43f5e" },
@@ -48,6 +48,7 @@ export default function Catalogo() {
   const [clienteDireccion, setClienteDireccion] = useState("");
   const [clienteNota, setClienteNota] = useState("");
   const [clienteCelular, setClienteCelular] = useState("");
+  const [metodoPago, setMetodoPago] = useState("");
 
   // 🔥 Escuchar cambios en Firestore en tiempo real
   useEffect(() => {
@@ -131,7 +132,8 @@ export default function Catalogo() {
   const descuento15 = cartCount >= 12;
   const descuentoMonto = descuento15 ? cartTotal * 0.15 : 0;
   const envio = envioGratis ? 0 : 34;
-  const totalFinal = cartTotal - descuentoMonto + envio;
+  const contraEntregaExtra = metodoPago === "Contra entrega" && !envioGratis ? 4 : 0;
+  const totalFinal = cartTotal - descuentoMonto + envio + contraEntregaExtra;
 
   // 🔥 Guardar en Firestore
   const saveProduct = async () => {
@@ -396,12 +398,42 @@ export default function Catalogo() {
                   <textarea placeholder="📝 Nota o comentario (opcional)" value={clienteNota}
                     onChange={e => setClienteNota(e.target.value)}
                     className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition resize-none h-16 ${inputCls}`} />
+
+                  {/* Método de pago */}
+                  <div>
+                    <p className={`text-xs font-bold mb-1 ${!metodoPago ? "text-red-400" : (dark ? "text-gray-400" : "text-gray-500")}`}>
+                      💳 Método de pago *obligatorio
+                    </p>
+                    <div className="space-y-1">
+                      {[
+                        { id: "Transferencia / App bancaria (BAC, BI, Banrural)", label: "🏦 Transferencia / App bancaria", sub: "BAC, BI, Banrural" },
+                        { id: "Depósito en banco", label: "🏧 Depósito en banco", sub: "" },
+                        { id: "Zigi", label: "⚡ Zigi", sub: "Pago rápido con QR o link" },
+                        { id: "Contra entrega", label: "🚚 Contra entrega", sub: !envioGratis ? "+Q4.00 al total" : "Sin recargo" },
+                      ].map(op => (
+                        <button key={op.id} onClick={() => setMetodoPago(op.id)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-sm font-bold transition ${metodoPago === op.id ? "border-violet-500 bg-violet-50 text-violet-700" : (dark ? "border-gray-700 bg-gray-800 text-gray-300" : "border-gray-200 bg-gray-50 text-gray-700")} hover:border-violet-400`}>
+                          <span>{op.label}</span>
+                          {op.sub && <span className={`text-xs font-normal ${op.id === "Contra entrega" && !envioGratis ? "text-amber-500 font-bold" : "text-gray-400"}`}>{op.sub}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Extra contra entrega */}
+                  {contraEntregaExtra > 0 && (
+                    <div className="flex justify-between text-sm mt-1">
+                      <span className="text-amber-500 font-bold">🚚 Cargo contra entrega:</span>
+                      <span className="text-amber-500 font-bold" translate="no">+Q4.00</span>
+                    </div>
+                  )}
                 </div>
                 <button onClick={() => {
                   if (!clienteNombre || !clienteDireccion || !clienteCelular) return showToast("Completa los campos obligatorios", "#ef4444");
+                  if (!metodoPago) return showToast("Selecciona un método de pago", "#ef4444");
                   const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
-                  const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}`;
-                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📱 Celular: ${clienteCelular}\n📍 Dirección: ${clienteDireccion}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
+                  const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}${contraEntregaExtra > 0 ? "\n🚚 Cargo contra entrega: +Q4.00" : ""}`;
+                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📱 Celular: ${clienteCelular}\n📍 Dirección: ${clienteDireccion}\n💳 Pago: ${metodoPago}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
                   const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*${datosCliente}`;
                   const url = `https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`;
                   window.open(url, "_blank");
