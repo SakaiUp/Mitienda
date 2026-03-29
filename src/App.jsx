@@ -119,6 +119,11 @@ export default function Catalogo() {
   );
   const cartTotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   const cartCount = cart.reduce((acc, i) => acc + i.qty, 0);
+  const envioGratis = cartCount >= 6;
+  const descuento15 = cartCount >= 12;
+  const descuentoMonto = descuento15 ? cartTotal * 0.15 : 0;
+  const envio = envioGratis ? 0 : 34;
+  const totalFinal = cartTotal - descuentoMonto + envio;
 
   // 🔥 Guardar en Firestore
   const saveProduct = async () => {
@@ -215,8 +220,8 @@ export default function Catalogo() {
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-violet-600 via-pink-500 to-amber-400 py-8 px-4 text-white text-center">
-        <h1 className="text-3xl sm:text-4xl font-black mb-1">¡Bienvenido a MiTienda! 🎉</h1>
-        <p className="text-white/80 text-sm">{products.length} productos disponibles · Envíos rápidos · Calidad garantizada</p>
+        <h1 className="text-3xl sm:text-4xl font-black mb-1"><span style={{color:"#ff2222"}}>B</span>3D Studio 🎉</h1>
+        <p className="text-white/80 text-sm">{products.length} productos · 🚚 6 unidades = Envío gratis · 12 unidades = Envío gratis + 15% desc.</p>
         {isAdmin && (
           <button onClick={() => requirePin("add")} className="mt-4 sm:hidden px-6 py-2 bg-white text-violet-600 font-black rounded-xl text-sm">
             + Agregar producto
@@ -250,7 +255,7 @@ export default function Catalogo() {
               const color = COLORS[i % COLORS.length];
               return (
                 <div key={product.id} className={`rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${card}`}>
-                  <div className={`bg-gradient-to-br ${color.bg} h-44 flex items-center justify-center overflow-hidden`}>
+                  <div className={`bg-gradient-to-br ${color.bg} h-64 flex items-center justify-center overflow-hidden`}>
                     {product.imageUrl
                       ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
                       : null}
@@ -261,7 +266,11 @@ export default function Catalogo() {
                       <h3 className="font-black text-base leading-tight">{product.name}</h3>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full ml-2 shrink-0 ${color.light}`}>{product.category}</span>
                     </div>
-                    <p className={`text-xs mb-3 ${dark ? "text-gray-400" : "text-gray-500"}`}>{product.description}</p>
+                    <p className={`text-xs mb-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>{product.description}</p>
+                    <div className={`text-xs rounded-xl p-2 mb-3 space-y-1 ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
+                      <p className="text-emerald-500 font-bold">🚚 6 unidades: Envío gratis</p>
+                      <p className="text-violet-500 font-bold">🎉 12 unidades: Envío gratis + 15% descuento</p>
+                    </div>
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-black text-2xl" style={{ color: color.accent }}>Q{parseFloat(product.price).toFixed(2)}</span>
                       <span className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>Stock: {product.stock}</span>
@@ -321,13 +330,37 @@ export default function Catalogo() {
             </div>
             {cart.length > 0 && (
               <div className="p-4 border-t" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
-                <div className="flex justify-between items-center mb-4">
-                  <span className="font-black text-lg">Total:</span>
-                  <span className="font-black text-2xl text-pink-500">Q{cartTotal.toFixed(2)}</span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className={dark ? "text-gray-400" : "text-gray-500"}>Subtotal:</span>
+                    <span className="font-bold">Q{cartTotal.toFixed(2)}</span>
+                  </div>
+                  {descuento15 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-violet-500 font-bold">Descuento 15%:</span>
+                      <span className="text-violet-500 font-bold">-Q{descuentoMonto.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className={envioGratis ? "text-emerald-500 font-bold" : (dark ? "text-gray-400" : "text-gray-500")}>
+                      {envioGratis ? "🚚 Envío gratis" : "Envío:"}
+                    </span>
+                    <span className={envioGratis ? "text-emerald-500 font-bold" : "font-bold"}>
+                      {envioGratis ? "¡Gratis!" : "Q34.00"}
+                    </span>
+                  </div>
+                  {!envioGratis && (
+                    <p className="text-xs text-amber-500 font-bold text-center">Agrega {6 - cartCount} más para envío gratis 🚚</p>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
+                    <span className="font-black text-lg">Total:</span>
+                    <span className="font-black text-2xl text-pink-500">Q{totalFinal.toFixed(2)}</span>
+                  </div>
                 </div>
                 <button onClick={() => {
                   const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
-                  const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}\n\n*Total: Q${cartTotal.toFixed(2)}*`;
+                  const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}`;
+                  const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*`;
                   const url = `https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`;
                   window.open(url, "_blank");
                 }}
