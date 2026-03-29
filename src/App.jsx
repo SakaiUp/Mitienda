@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const SECRET_PIN = "1234"; // 🔐 Cambia este PIN por el tuyo
+const SECRET_PIN = "1875"; // 🔐 Cambia este PIN por el tuyo
 
 const COLORS = [
   { bg: "from-pink-500 to-rose-500", light: "bg-pink-100 text-pink-700", accent: "#f43f5e" },
