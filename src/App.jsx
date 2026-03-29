@@ -336,11 +336,11 @@ export default function Catalogo() {
                   <span className="text-2xl">{item.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm truncate">{item.name}</p>
-                    <p className="text-xs text-pink-500 font-black">Q{(item.price * item.qty).toFixed(2)}</p>
+                    <p className="text-xs text-pink-500 font-black" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <button onClick={() => changeQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center">-</button>
-                    <span className="w-6 text-center font-bold text-sm">{item.qty}</span>
+                    <span className="w-6 text-center font-bold text-sm" translate="no">{item.qty}</span>
                     <button onClick={() => changeQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center">+</button>
                   </div>
                   <button onClick={() => removeFromCart(item.id)} className="text-red-400 text-sm ml-1">✕</button>
@@ -352,19 +352,19 @@ export default function Catalogo() {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className={dark ? "text-gray-400" : "text-gray-500"}>Subtotal:</span>
-                    <span className="font-bold">Q{cartTotal.toFixed(2)}</span>
+                    <span className="font-bold" translate="no">Q{cartTotal.toFixed(2)}</span>
                   </div>
                   {descuento15 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-violet-500 font-bold">Descuento 15%:</span>
-                      <span className="text-violet-500 font-bold">-Q{descuentoMonto.toFixed(2)}</span>
+                      <span className="text-violet-500 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
                     <span className={envioGratis ? "text-emerald-500 font-bold" : (dark ? "text-gray-400" : "text-gray-500")}>
                       {envioGratis ? "🚚 Envío gratis" : "Envío:"}
                     </span>
-                    <span className={envioGratis ? "text-emerald-500 font-bold" : "font-bold"}>
+                    <span className={envioGratis ? "text-emerald-500 font-bold" : "font-bold"} translate="no">
                       {envioGratis ? "¡Gratis!" : "Q34.00"}
                     </span>
                   </div>
@@ -373,7 +373,7 @@ export default function Catalogo() {
                   )}
                   <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
                     <span className="font-black text-lg">Total:</span>
-                    <span className="font-black text-2xl text-pink-500">Q{totalFinal.toFixed(2)}</span>
+                    <span className="font-black text-2xl text-pink-500" translate="no">Q{totalFinal.toFixed(2)}</span>
                   </div>
                 </div>
                 {/* Datos del cliente */}
