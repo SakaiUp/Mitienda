@@ -47,6 +47,7 @@ export default function Catalogo() {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteDireccion, setClienteDireccion] = useState("");
   const [clienteNota, setClienteNota] = useState("");
+  const [clienteCelular, setClienteCelular] = useState("");
 
   // 🔥 Escuchar cambios en Firestore en tiempo real
   useEffect(() => {
@@ -107,20 +108,24 @@ export default function Catalogo() {
 
   const logout = () => { setIsAdmin(false); showToast("Sesión admin cerrada 🔒", "#6b7280"); };
 
+  const [qtys, setQtys] = useState({});
+  const getQty = (id) => qtys[id] || 1;
+  const changeProductQty = (id, delta) => setQtys(prev => ({ ...prev, [id]: Math.max(1, (prev[id] || 1) + delta) }));
+
   const addToCart = (product) => {
+    const qty = getQty(product.id);
     setCart(prev => {
       const exists = prev.find(i => i.id === product.id);
-      if (exists) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { ...product, qty: 1 }];
+      if (exists) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + qty } : i);
+      return [...prev, { ...product, qty }];
     });
-    showToast(`¡${product.name} añadido! 🛒`);
+    showToast(`¡${product.name} x${qty} añadido! 🛒`);
   };
 
   const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id));
   const changeQty = (id, delta) => setCart(prev =>
     prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i)
-  );
-  const cartTotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
+  );  const cartTotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   const cartCount = cart.reduce((acc, i) => acc + i.qty, 0);
   const envioGratis = cartCount >= 6;
   const descuento15 = cartCount >= 12;
@@ -278,6 +283,17 @@ export default function Catalogo() {
                       <span className="font-black text-2xl" style={{ color: color.accent }}>Q{parseFloat(product.price).toFixed(2)}</span>
                       <span className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>Stock: {product.stock}</span>
                     </div>
+                    {/* Selector de cantidad */}
+                    <div className={`flex items-center justify-between px-3 py-2 rounded-xl mb-2 ${dark ? "bg-gray-800" : "bg-gray-100"}`}>
+                      <span className={`text-xs font-bold ${dark ? "text-gray-400" : "text-gray-500"}`}>Cantidad:</span>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => changeProductQty(product.id, -1)}
+                          className={`w-7 h-7 rounded-lg font-black text-sm flex items-center justify-center transition ${dark ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-200"}`}>−</button>
+                        <span className="font-black text-base w-6 text-center">{getQty(product.id)}</span>
+                        <button onClick={() => changeProductQty(product.id, 1)}
+                          className={`w-7 h-7 rounded-lg font-black text-sm flex items-center justify-center transition ${dark ? "bg-gray-700 hover:bg-gray-600" : "bg-white hover:bg-gray-200"}`}>+</button>
+                      </div>
+                    </div>
                     <div className="flex gap-2">
                       <button onClick={() => addToCart(product)}
                         className={`flex-1 py-2 rounded-xl text-white font-bold text-sm transition bg-gradient-to-r ${color.bg} hover:opacity-90 active:scale-95`}>
@@ -362,21 +378,30 @@ export default function Catalogo() {
                 </div>
                 {/* Datos del cliente */}
                 <div className="space-y-2 mb-4">
-                  <input type="text" placeholder="👤 Tu nombre" value={clienteNombre}
-                    onChange={e => setClienteNombre(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
-                  <input type="text" placeholder="📍 Dirección de entrega" value={clienteDireccion}
-                    onChange={e => setClienteDireccion(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+                  <div>
+                    <input type="text" placeholder="👤 Tu nombre *obligatorio" value={clienteNombre}
+                      onChange={e => setClienteNombre(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteNombre ? "border-red-300" : ""}`} />
+                  </div>
+                  <div>
+                    <input type="tel" placeholder="📱 Número de celular *obligatorio" value={clienteCelular}
+                      onChange={e => setClienteCelular(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteCelular ? "border-red-300" : ""}`} />
+                  </div>
+                  <div>
+                    <input type="text" placeholder="📍 Dirección de entrega *obligatorio" value={clienteDireccion}
+                      onChange={e => setClienteDireccion(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteDireccion ? "border-red-300" : ""}`} />
+                  </div>
                   <textarea placeholder="📝 Nota o comentario (opcional)" value={clienteNota}
                     onChange={e => setClienteNota(e.target.value)}
                     className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition resize-none h-16 ${inputCls}`} />
                 </div>
                 <button onClick={() => {
-                  if (!clienteNombre || !clienteDireccion) return showToast("Por favor completa tu nombre y dirección", "#ef4444");
+                  if (!clienteNombre || !clienteDireccion || !clienteCelular) return showToast("Completa los campos obligatorios", "#ef4444");
                   const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
                   const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}`;
-                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📍 Dirección: ${clienteDireccion}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
+                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📱 Celular: ${clienteCelular}\n📍 Dirección: ${clienteDireccion}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
                   const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*${datosCliente}`;
                   const url = `https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`;
                   window.open(url, "_blank");
