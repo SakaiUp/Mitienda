@@ -44,6 +44,9 @@ export default function Catalogo() {
   const [pinError, setPinError] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [clienteNombre, setClienteNombre] = useState("");
+  const [clienteDireccion, setClienteDireccion] = useState("");
+  const [clienteNota, setClienteNota] = useState("");
 
   // 🔥 Escuchar cambios en Firestore en tiempo real
   useEffect(() => {
@@ -357,10 +360,24 @@ export default function Catalogo() {
                     <span className="font-black text-2xl text-pink-500">Q{totalFinal.toFixed(2)}</span>
                   </div>
                 </div>
+                {/* Datos del cliente */}
+                <div className="space-y-2 mb-4">
+                  <input type="text" placeholder="👤 Tu nombre" value={clienteNombre}
+                    onChange={e => setClienteNombre(e.target.value)}
+                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+                  <input type="text" placeholder="📍 Dirección de entrega" value={clienteDireccion}
+                    onChange={e => setClienteDireccion(e.target.value)}
+                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+                  <textarea placeholder="📝 Nota o comentario (opcional)" value={clienteNota}
+                    onChange={e => setClienteNota(e.target.value)}
+                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition resize-none h-16 ${inputCls}`} />
+                </div>
                 <button onClick={() => {
+                  if (!clienteNombre || !clienteDireccion) return showToast("Por favor completa tu nombre y dirección", "#ef4444");
                   const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
                   const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}`;
-                  const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*`;
+                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📍 Dirección: ${clienteDireccion}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
+                  const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*${datosCliente}`;
                   const url = `https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`;
                   window.open(url, "_blank");
                 }}
@@ -456,5 +473,7 @@ export default function Catalogo() {
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
       `}</style>
     </div>
+  );
+}
   );
 }
