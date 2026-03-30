@@ -28,7 +28,7 @@ const COLORS = [
 ];
 
 export default function Catalogo() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
@@ -193,37 +193,23 @@ export default function Catalogo() {
       )}
 
       {/* Header */}
-      <header className={`sticky top-0 z-40 ${dark ? "bg-gray-950/90" : "bg-white/90"} backdrop-blur-md border-b ${dark ? "border-gray-800" : "border-gray-100"} px-4 py-3`}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-          <button onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black hover:opacity-90 transition active:scale-95">
-            <span className="text-lg">🛒</span>
-            <span className="hidden sm:inline text-sm">Carrito</span>
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{cartCount}</span>
-            )}
-          </button>
-
-          <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-10 object-contain" />
-
-          <input
-            className={`flex-1 max-w-xs px-4 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`}
-            placeholder="Buscar productos..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-
-          <div className="flex items-center gap-2">
-            <button onClick={() => setDark(!dark)}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg transition ${dark ? "bg-yellow-400 text-gray-900" : "bg-gray-800 text-yellow-300"}`}>
-              {dark ? "☀️" : "🌙"}
-            </button>
+      <header className={`sticky top-0 z-40 ${dark ? "bg-gray-950/90" : "bg-white/90"} backdrop-blur-md border-b ${dark ? "border-gray-800" : "border-gray-100"} px-4 pt-3 pb-2`}>
+        <div className="max-w-6xl mx-auto">
+          {/* Fila 1: búsqueda */}
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              className={`flex-1 px-4 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`}
+              placeholder="Buscar productos..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
             {isAdmin ? (
               <>
                 <button onClick={() => requirePin("add")}
-                  className="px-4 py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
+                  className="px-3 py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
                   + Agregar
                 </button>
-                <button onClick={logout} title="Cerrar sesión admin"
+                <button onClick={logout}
                   className="w-9 h-9 rounded-xl bg-red-100 hover:bg-red-200 text-red-500 flex items-center justify-center transition">
                   🔓
                 </button>
@@ -235,15 +221,52 @@ export default function Catalogo() {
               </button>
             ) : null}
           </div>
+
+          {/* Fila 2: logo + carrito + barras */}
+          <div className="flex items-center gap-3">
+            <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-9 object-contain shrink-0" />
+            <div className="flex-1 space-y-1">
+              {/* Barra envío gratis */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-emerald-400 shrink-0 w-20">🚚 Envío</span>
+                <div className={`flex-1 h-2 rounded-full overflow-hidden ${dark ? "bg-gray-700" : "bg-gray-200"}`}>
+                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-500 transition-all duration-500"
+                    style={{ width: `${Math.min((cartCount / 6) * 100, 100)}%` }} />
+                </div>
+                <span className="text-xs font-bold shrink-0 w-16 text-right" translate="no">
+                  {envioGratis ? <span className="text-emerald-400">¡Gratis!</span> : <span className={dark ? "text-gray-400" : "text-gray-500"}>{cartCount}/6</span>}
+                </span>
+              </div>
+              {/* Barra descuento 15% */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-violet-400 shrink-0 w-20">🎉 15% desc.</span>
+                <div className={`flex-1 h-2 rounded-full overflow-hidden ${dark ? "bg-gray-700" : "bg-gray-200"}`}>
+                  <div className="h-full rounded-full bg-gradient-to-r from-violet-400 to-pink-500 transition-all duration-500"
+                    style={{ width: `${Math.min((cartCount / 12) * 100, 100)}%` }} />
+                </div>
+                <span className="text-xs font-bold shrink-0 w-16 text-right" translate="no">
+                  {descuento15 ? <span className="text-violet-400">¡Activo!</span> : <span className={dark ? "text-gray-400" : "text-gray-500"}>{cartCount}/12</span>}
+                </span>
+              </div>
+            </div>
+            <button onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black hover:opacity-90 transition active:scale-95 shrink-0">
+              <span className="text-lg">🛒</span>
+              <span className="hidden sm:inline text-sm">Carrito</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{cartCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Hero */}
-      <div className="bg-gradient-to-r from-violet-600 via-pink-500 to-amber-400 py-8 px-4 text-white text-center">
-        <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-20 mx-auto mb-2 object-contain drop-shadow-lg" />
-        <p className="text-white/80 text-sm">{products.length} productos · 🚚 6 unidades = Envío gratis · 12 unidades = Envío gratis + 15% desc.</p>
+      <div className="bg-gradient-to-r from-violet-600 via-pink-500 to-amber-400 py-6 px-4 text-white text-center">
+        <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-24 mx-auto mb-3 object-contain drop-shadow-lg" />
+        <p className="text-white font-black text-base sm:text-lg">{products.length} productos disponibles</p>
+        <p className="text-white/90 font-bold text-sm mt-1">🚚 6 unidades = Envío gratis &nbsp;·&nbsp; 🎉 12 unidades = Envío gratis + 15% descuento</p>
         {isAdmin && (
-          <button onClick={() => requirePin("add")} className="mt-4 sm:hidden px-6 py-2 bg-white text-violet-600 font-black rounded-xl text-sm">
+          <button onClick={() => requirePin("add")} className="mt-4 px-6 py-2 bg-white text-violet-600 font-black rounded-xl text-sm">
             + Agregar producto
           </button>
         )}
