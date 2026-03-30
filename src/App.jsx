@@ -49,6 +49,8 @@ export default function Catalogo() {
   const [clienteNota, setClienteNota] = useState("");
   const [clienteCelular, setClienteCelular] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
+  const [acordeonDatos, setAcordeonDatos] = useState(false);
+  const [acordeonPago, setAcordeonPago] = useState(false);
   const [productoDetalle, setProductoDetalle] = useState(null);
   const [fotoActiva, setFotoActiva] = useState(0);
 
@@ -358,7 +360,7 @@ export default function Catalogo() {
         <div className="fixed inset-0 z-50 flex">
           <div className="flex-1 bg-black/40" onClick={() => setCartOpen(false)} />
           <div className={`w-full max-w-sm ${dark ? "bg-gray-900" : "bg-white"} h-full flex flex-col shadow-2xl`}>
-            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
               <h2 className="font-black text-xl">🛒 Carrito</h2>
               <button onClick={() => setCartOpen(false)} className="text-2xl leading-none">✕</button>
             </div>
@@ -369,103 +371,117 @@ export default function Catalogo() {
                   <p className={dark ? "text-gray-500" : "text-gray-400"}>Tu carrito está vacío</p>
                 </div>
               ) : cart.map(item => (
-                <div key={item.id} className={`flex items-center gap-3 p-3 rounded-xl ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
-                  <span className="text-2xl">{item.emoji}</span>
+                <div key={item.id} className={`flex items-center gap-3 p-3 rounded-2xl ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
+                  {/* Foto o emoji grande */}
+                  <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-700 flex items-center justify-center">
+                    {item.imageUrl
+                      ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+                      : <span className="text-3xl">{item.emoji || "🛍️"}</span>}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">{item.name}</p>
-                    <p className="text-xs text-pink-500 font-black" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
+                    <p className="font-black text-sm leading-tight mb-1">{item.name}</p>
+                    <p className="text-pink-500 font-black text-base" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
+                    <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`} translate="no">Q{parseFloat(item.price).toFixed(2)} c/u</p>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => changeQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center">-</button>
-                    <span className="w-6 text-center font-bold text-sm" translate="no">{item.qty}</span>
-                    <button onClick={() => changeQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center">+</button>
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <button onClick={() => changeQty(item.id, 1)} className={`w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center transition ${dark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>+</button>
+                    <span className="font-black text-base" translate="no">{item.qty}</span>
+                    <button onClick={() => changeQty(item.id, -1)} className={`w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center transition ${dark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>−</button>
                   </div>
-                  <button onClick={() => removeFromCart(item.id)} className="text-red-400 text-sm ml-1">✕</button>
+                  <button onClick={() => removeFromCart(item.id)} className="text-red-400 text-lg ml-1 shrink-0">✕</button>
                 </div>
               ))}
             </div>
             {cart.length > 0 && (
-              <div className="p-4 border-t" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
-                <div className="space-y-2 mb-4">
+              <div className="p-4 border-t space-y-3" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
+                {/* Resumen */}
+                <div className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className={dark ? "text-gray-400" : "text-gray-500"}>Subtotal:</span>
                     <span className="font-bold" translate="no">Q{cartTotal.toFixed(2)}</span>
                   </div>
                   {descuento15 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-violet-500 font-bold">Descuento 15%:</span>
-                      <span className="text-violet-500 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span>
+                      <span className="text-violet-400 font-bold">🎉 Descuento 15%:</span>
+                      <span className="text-violet-400 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className={envioGratis ? "text-emerald-500 font-bold" : (dark ? "text-gray-400" : "text-gray-500")}>
-                      {envioGratis ? "🚚 Envío gratis" : "Envío:"}
+                    <span className={envioGratis ? "text-emerald-400 font-bold" : (dark ? "text-gray-400" : "text-gray-500")}>
+                      {envioGratis ? "🚚 Envío:" : "🚚 Envío:"}
                     </span>
-                    <span className={envioGratis ? "text-emerald-500 font-bold" : "font-bold"} translate="no">
+                    <span className={envioGratis ? "text-emerald-400 font-bold" : "font-bold"} translate="no">
                       {envioGratis ? "¡Gratis!" : "Q34.00"}
                     </span>
                   </div>
+                  {contraEntregaExtra > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-amber-400 font-bold">Cargo contra entrega:</span>
+                      <span className="text-amber-400 font-bold" translate="no">+Q4.00</span>
+                    </div>
+                  )}
                   {!envioGratis && (
-                    <p className="text-xs text-amber-500 font-bold text-center">Agrega {6 - cartCount} más para envío gratis 🚚</p>
+                    <p className="text-xs text-amber-400 font-bold text-center">Agrega {6 - cartCount} más para envío gratis 🚚</p>
                   )}
                   <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: dark ? "#374151" : "#f3f4f6" }}>
                     <span className="font-black text-lg">Total:</span>
                     <span className="font-black text-2xl text-pink-500" translate="no">Q{totalFinal.toFixed(2)}</span>
                   </div>
                 </div>
-                {/* Datos del cliente */}
-                <div className="space-y-2 mb-4">
-                  <div>
-                    <input type="text" placeholder="👤 Tu nombre *obligatorio" value={clienteNombre}
-                      onChange={e => setClienteNombre(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteNombre ? "border-red-300" : ""}`} />
-                  </div>
-                  <div>
-                    <input type="tel" placeholder="📱 Número de celular *obligatorio" value={clienteCelular}
-                      onChange={e => setClienteCelular(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteCelular ? "border-red-300" : ""}`} />
-                  </div>
-                  <div>
-                    <input type="text" placeholder="📍 Dirección de entrega *obligatorio" value={clienteDireccion}
-                      onChange={e => setClienteDireccion(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteDireccion ? "border-red-300" : ""}`} />
-                  </div>
-                  <textarea placeholder="📝 Nota o comentario (opcional)" value={clienteNota}
-                    onChange={e => setClienteNota(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition resize-none h-16 ${inputCls}`} />
 
-                  {/* Método de pago */}
-                  <div>
-                    <p className={`text-xs font-bold mb-1 ${!metodoPago ? "text-red-400" : (dark ? "text-gray-400" : "text-gray-500")}`}>
-                      💳 Método de pago *obligatorio
-                    </p>
-                    <div className="space-y-1">
+                {/* Acordeón: Datos de envío */}
+                <div className={`rounded-2xl border overflow-hidden ${dark ? "border-gray-700" : "border-gray-200"}`}>
+                  <button onClick={() => setAcordeonDatos(!acordeonDatos)}
+                    className={`w-full flex items-center justify-between px-4 py-3 font-black text-sm transition ${dark ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                    <span>📦 Datos de envío {clienteNombre && clienteCelular && clienteDireccion ? "✅" : "*obligatorio"}</span>
+                    <span className="text-lg">{acordeonDatos ? "▲" : "▼"}</span>
+                  </button>
+                  {acordeonDatos && (
+                    <div className={`p-3 space-y-2 ${dark ? "bg-gray-800/50" : "bg-white"}`}>
+                      <input type="text" placeholder="👤 Tu nombre" value={clienteNombre}
+                        onChange={e => setClienteNombre(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteNombre ? "border-red-400" : ""}`} />
+                      <input type="tel" placeholder="📱 Número de celular" value={clienteCelular}
+                        onChange={e => setClienteCelular(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteCelular ? "border-red-400" : ""}`} />
+                      <input type="text" placeholder="📍 Dirección de entrega" value={clienteDireccion}
+                        onChange={e => setClienteDireccion(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls} ${!clienteDireccion ? "border-red-400" : ""}`} />
+                      <textarea placeholder="📝 Nota o comentario (opcional)" value={clienteNota}
+                        onChange={e => setClienteNota(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition resize-none h-16 ${inputCls}`} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Acordeón: Método de pago */}
+                <div className={`rounded-2xl border overflow-hidden ${dark ? "border-gray-700" : "border-gray-200"}`}>
+                  <button onClick={() => setAcordeonPago(!acordeonPago)}
+                    className={`w-full flex items-center justify-between px-4 py-3 font-black text-sm transition ${dark ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                    <span>💳 {metodoPago || "Método de pago *obligatorio"} {metodoPago ? "✅" : ""}</span>
+                    <span className="text-lg">{acordeonPago ? "▲" : "▼"}</span>
+                  </button>
+                  {acordeonPago && (
+                    <div className={`p-3 space-y-1 ${dark ? "bg-gray-800/50" : "bg-white"}`}>
                       {[
                         { id: "Transferencia / App bancaria (BAC, BI, Banrural)", label: "🏦 Transferencia / App bancaria", sub: "BAC, BI, Banrural" },
                         { id: "Depósito en banco", label: "🏧 Depósito en banco", sub: "" },
                         { id: "Zigi", label: "⚡ Zigi", sub: "Pago rápido con QR o link" },
                         { id: "Contra entrega", label: "🚚 Contra entrega", sub: !envioGratis ? "+Q4.00 al total" : "Sin recargo" },
                       ].map(op => (
-                        <button key={op.id} onClick={() => setMetodoPago(op.id)}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-sm font-bold transition ${metodoPago === op.id ? "border-violet-500 bg-violet-50 text-violet-700" : (dark ? "border-gray-700 bg-gray-800 text-gray-300" : "border-gray-200 bg-gray-50 text-gray-700")} hover:border-violet-400`}>
+                        <button key={op.id} onClick={() => { setMetodoPago(op.id); setAcordeonPago(false); }}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl border text-sm font-bold transition ${metodoPago === op.id ? "border-violet-500 bg-violet-500/20 text-violet-400" : (dark ? "border-gray-700 bg-gray-800 text-gray-300" : "border-gray-200 bg-gray-50 text-gray-700")} hover:border-violet-400`}>
                           <span>{op.label}</span>
-                          {op.sub && <span className={`text-xs font-normal ${op.id === "Contra entrega" && !envioGratis ? "text-amber-500 font-bold" : "text-gray-400"}`}>{op.sub}</span>}
+                          {op.sub && <span className={`text-xs font-normal ${op.id === "Contra entrega" && !envioGratis ? "text-amber-400 font-bold" : "text-gray-400"}`}>{op.sub}</span>}
                         </button>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Extra contra entrega */}
-                  {contraEntregaExtra > 0 && (
-                    <div className="flex justify-between text-sm mt-1">
-                      <span className="text-amber-500 font-bold">🚚 Cargo contra entrega:</span>
-                      <span className="text-amber-500 font-bold" translate="no">+Q4.00</span>
-                    </div>
                   )}
                 </div>
+
                 <button onClick={() => {
-                  if (!clienteNombre || !clienteDireccion || !clienteCelular) return showToast("Completa los campos obligatorios", "#ef4444");
-                  if (!metodoPago) return showToast("Selecciona un método de pago", "#ef4444");
+                  if (!clienteNombre || !clienteDireccion || !clienteCelular) { setAcordeonDatos(true); return showToast("Completa los datos de envío", "#ef4444"); }
+                  if (!metodoPago) { setAcordeonPago(true); return showToast("Selecciona un método de pago", "#ef4444"); }
                   const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
                   const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}${contraEntregaExtra > 0 ? "\n🚚 Cargo contra entrega: +Q4.00" : ""}`;
                   const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📱 Celular: ${clienteCelular}\n📍 Dirección: ${clienteDireccion}\n💳 Pago: ${metodoPago}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
