@@ -220,7 +220,7 @@ export default function Catalogo() {
             {isAdmin ? (
               <>
                 <button onClick={() => requirePin("add")}
-                  className="px-4 py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition hidden sm:block">
+                  className="px-4 py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
                   + Agregar
                 </button>
                 <button onClick={logout} title="Cerrar sesión admin"
@@ -228,12 +228,12 @@ export default function Catalogo() {
                   🔓
                 </button>
               </>
-            ) : (
-              <button onClick={() => requirePin("add")} title="Acceso administrador"
-                className="w-9 h-9 rounded-xl bg-gray-200 hover:bg-violet-100 text-gray-500 hover:text-violet-600 flex items-center justify-center transition">
-                🔒
+            ) : search.toLowerCase() === "admin" ? (
+              <button onClick={() => { setSearch(""); requirePin("add"); }}
+                className="px-3 py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
+                Admin 🔐
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       </header>
@@ -270,12 +270,12 @@ export default function Catalogo() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((product, i) => {
               const color = COLORS[i % COLORS.length];
               return (
                 <div key={product.id} className={`rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${card}`}>
-                  <div className={`bg-gradient-to-br ${color.bg} h-80 flex items-center justify-center overflow-hidden cursor-pointer`}
+                  <div className={`bg-gradient-to-br ${color.bg} h-56 sm:h-80 flex items-center justify-center overflow-hidden cursor-pointer`}
                     onClick={() => { setProductoDetalle(product); setFotoActiva(0); }}>
                     {product.imageUrl
                       ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
@@ -482,7 +482,7 @@ export default function Catalogo() {
             <div className="max-w-2xl mx-auto w-full px-4 py-6 space-y-5">
               {/* Galería */}
               <div>
-                <div className={`bg-gradient-to-br ${color.bg} rounded-2xl overflow-hidden h-96 flex items-center justify-center`}>
+                <div className={`bg-gradient-to-br ${color.bg} rounded-2xl overflow-hidden h-64 sm:h-96 flex items-center justify-center`}>
                   {fotos.length > 0
                     ? <img src={fotos[fotoActiva]} alt={p.name} className="w-full h-full object-contain" />
                     : <span className="text-8xl">{p.emoji || "🛍️"}</span>}
