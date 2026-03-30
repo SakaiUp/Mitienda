@@ -51,6 +51,7 @@ export default function Catalogo() {
   const [metodoPago, setMetodoPago] = useState("");
   const [acordeonDatos, setAcordeonDatos] = useState(false);
   const [acordeonPago, setAcordeonPago] = useState(false);
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todos");
   const [productoDetalle, setProductoDetalle] = useState(null);
   const [fotoActiva, setFotoActiva] = useState(0);
 
@@ -174,10 +175,14 @@ export default function Catalogo() {
     }
   };
 
-  const filtered = products.filter(p =>
-    p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.category?.toLowerCase().includes(search.toLowerCase())
-  );
+  const categorias = ["Todos", ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
+
+  const filtered = products.filter(p => {
+    const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase()) ||
+      p.category?.toLowerCase().includes(search.toLowerCase());
+    const matchCategoria = categoriaFiltro === "Todos" || p.category === categoriaFiltro;
+    return matchSearch && matchCategoria;
+  });
 
   const bg = dark ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900";
   const card = dark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100";
@@ -273,6 +278,22 @@ export default function Catalogo() {
           </button>
         )}
       </div>
+
+      {/* Filtros de categoría */}
+      {categorias.length > 1 && (
+        <div className={`sticky top-[88px] z-30 px-4 py-3 ${dark ? "bg-gray-950/95" : "bg-gray-50/95"} backdrop-blur-md border-b ${dark ? "border-gray-800" : "border-gray-100"}`}>
+          <div className="max-w-6xl mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categorias.map(cat => (
+              <button key={cat} onClick={() => setCategoriaFiltro(cat)}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition shrink-0 ${categoriaFiltro === cat
+                  ? "bg-gradient-to-r from-violet-500 to-pink-500 text-white shadow-md"
+                  : (dark ? "bg-gray-800 text-gray-400 hover:bg-gray-700" : "bg-white text-gray-500 hover:bg-gray-100 border border-gray-200")}`}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Products */}
       <main className="max-w-6xl mx-auto px-4 py-8">
