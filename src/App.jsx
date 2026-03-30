@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 
 // 🔥 Configuración Firebase
 const firebaseConfig = {
@@ -54,6 +54,9 @@ export default function Catalogo() {
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todos");
   const [productoDetalle, setProductoDetalle] = useState(null);
   const [fotoActiva, setFotoActiva] = useState(0);
+  const [redes, setRedes] = useState({ whatsapp: "https://wa.me/50231511875", facebook: "https://facebook.com", tiktok: "https://tiktok.com" });
+  const [redesModal, setRedesModal] = useState(false);
+  const [redesForm, setRedesForm] = useState({ whatsapp: "", facebook: "", tiktok: "" });
 
   // 🔥 Escuchar cambios en Firestore en tiempo real
   useEffect(() => {
@@ -64,6 +67,20 @@ export default function Catalogo() {
     }, () => setLoading(false));
     return () => unsub();
   }, []);
+
+  // 🔥 Cargar redes sociales desde Firebase
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "config", "redes"), (snap) => {
+      if (snap.exists()) setRedes(snap.data());
+    });
+    return () => unsub();
+  }, []);
+
+  const saveRedes = async () => {
+    await setDoc(doc(db, "config", "redes"), redesForm);
+    showToast("¡Redes actualizadas! 🎉");
+    setRedesModal(false);
+  };;
 
   const showToast = (msg, color = "#10b981") => {
     setToast({ msg, color });
@@ -270,8 +287,36 @@ export default function Catalogo() {
       {/* Hero */}
       <div className="bg-gradient-to-r from-violet-600 via-pink-500 to-amber-400 py-6 px-4 text-white text-center">
         <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-24 mx-auto mb-3 object-contain drop-shadow-lg" />
-        <p className="text-white font-black text-base sm:text-lg">{products.length} productos disponibles</p>
         <p className="text-white/90 font-bold text-sm mt-1">🚚 6 unidades = Envío gratis &nbsp;·&nbsp; 🎉 12 unidades = Envío gratis + 15% descuento</p>
+
+        {/* Iconos redes sociales */}
+        <div className="flex items-center justify-center gap-4 mt-4">
+          {redes.whatsapp && (
+            <a href={redes.whatsapp} target="_blank" rel="noopener noreferrer"
+              className="w-11 h-11 rounded-2xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95">
+              <img src="https://i.imgur.com/uZvUAKT.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+            </a>
+          )}
+          {redes.facebook && (
+            <a href={redes.facebook} target="_blank" rel="noopener noreferrer"
+              className="w-11 h-11 rounded-2xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95">
+              <img src="https://i.imgur.com/7QH2a3k.png" alt="Facebook" className="w-7 h-7 object-contain" />
+            </a>
+          )}
+          {redes.tiktok && (
+            <a href={redes.tiktok} target="_blank" rel="noopener noreferrer"
+              className="w-11 h-11 rounded-2xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95">
+              <img src="https://i.imgur.com/ueKiFWH.png" alt="TikTok" className="w-7 h-7 object-contain" />
+            </a>
+          )}
+          {isAdmin && (
+            <button onClick={() => { setRedesForm(redes); setRedesModal(true); }}
+              className="w-11 h-11 rounded-2xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition text-lg">
+              ✏️
+            </button>
+          )}
+        </div>
+
         {isAdmin && (
           <button onClick={() => requirePin("add")} className="mt-4 px-6 py-2 bg-white text-violet-600 font-black rounded-xl text-sm">
             + Agregar producto
@@ -619,6 +664,52 @@ export default function Catalogo() {
           </div>
         );
       })()}
+
+      {/* Modal Redes Sociales */}
+      {redesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setRedesModal(false)} />
+          <div className={`relative w-full max-w-md rounded-3xl p-6 shadow-2xl ${dark ? "bg-gray-900" : "bg-white"}`}>
+            <h2 className="font-black text-xl mb-5">📱 Editar Redes Sociales</h2>
+            <div className="space-y-3">
+              <div>
+                <label className={`text-xs font-bold mb-1 flex items-center gap-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+                  <img src="https://i.imgur.com/uZvUAKT.png" className="w-4 h-4" /> WhatsApp
+                </label>
+                <input type="text" placeholder="https://wa.me/502..." value={redesForm.whatsapp}
+                  onChange={e => setRedesForm(f => ({ ...f, whatsapp: e.target.value }))}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+              </div>
+              <div>
+                <label className={`text-xs font-bold mb-1 flex items-center gap-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+                  <img src="https://i.imgur.com/7QH2a3k.png" className="w-4 h-4" /> Facebook
+                </label>
+                <input type="text" placeholder="https://facebook.com/tupagina" value={redesForm.facebook}
+                  onChange={e => setRedesForm(f => ({ ...f, facebook: e.target.value }))}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+              </div>
+              <div>
+                <label className={`text-xs font-bold mb-1 flex items-center gap-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+                  <img src="https://i.imgur.com/ueKiFWH.png" className="w-4 h-4" /> TikTok
+                </label>
+                <input type="text" placeholder="https://tiktok.com/@tuusuario" value={redesForm.tiktok}
+                  onChange={e => setRedesForm(f => ({ ...f, tiktok: e.target.value }))}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-violet-400 transition ${inputCls}`} />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setRedesModal(false)}
+                className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition ${dark ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-100 hover:bg-gray-200"}`}>
+                Cancelar
+              </button>
+              <button onClick={saveRedes}
+                className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal PIN */}
       {pinModal && (
