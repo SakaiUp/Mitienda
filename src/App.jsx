@@ -312,7 +312,7 @@ export default function Catalogo() {
             <div key={product.id} className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden hover:border-gray-600 transition-all duration-200 active:scale-98">
               <div className="flex gap-3 p-3" onClick={() => { setProductoDetalle(product); setFotoActiva(0); }}>
                 {/* Foto */}
-                <div className={`w-28 h-28 rounded-xl shrink-0 bg-gradient-to-br ${color.bg} flex items-center justify-center overflow-hidden`}>
+                <div className={`w-28 h-28 shrink-0 bg-gradient-to-br ${color.bg} flex items-center justify-center overflow-hidden`}>
                   {product.imageUrl
                     ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" />
                     : <span className="text-4xl">{product.emoji || "🛍️"}</span>}
