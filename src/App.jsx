@@ -183,75 +183,55 @@ export default function Catalogo() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800 px-4 py-3">
         <div className="max-w-2xl mx-auto space-y-2">
-          {/* Logo + carrito */}
-          <div className="flex items-center justify-between">
-            <img src="https://i.imgur.com/LnBUYW8.png" alt="B3D Studio" className="h-9 object-contain" />
-            <div className="flex items-center gap-2">
-              {/* Barras de progreso */}
-              <div className="hidden sm:flex flex-col gap-1 w-36">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-emerald-400 font-bold w-14 shrink-0">🚚 Envío</span>
-                  <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-                    <div className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                      style={{ width: `${Math.min((cartCount / 6) * 100, 100)}%` }} />
-                  </div>
-                  <span className="text-xs text-gray-400 w-8 text-right" translate="no">{envioGratis ? "✓" : `${cartCount}/6`}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-violet-400 font-bold w-14 shrink-0">🎉 15%</span>
-                  <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-                    <div className="h-full rounded-full bg-violet-400 transition-all duration-500"
-                      style={{ width: `${Math.min((cartCount / 12) * 100, 100)}%` }} />
-                  </div>
-                  <span className="text-xs text-gray-400 w-8 text-right" translate="no">{descuento15 ? "✓" : `${cartCount}/12`}</span>
-                </div>
-              </div>
-              {isAdmin && (
-                <>
-                  <button onClick={() => requirePin("add")}
-                    className="px-3 py-1.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
-                    + Agregar
-                  </button>
-                  <button onClick={logout} className="w-8 h-8 rounded-xl bg-red-900/50 text-red-400 flex items-center justify-center text-sm">🔓</button>
-                </>
-              )}
-              {search.toLowerCase() === "admin" && !isAdmin && (
-                <button onClick={() => { setSearch(""); requirePin("add"); }}
-                  className="px-3 py-1.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-violet-500 to-pink-500">
-                  Admin 🔐
+          {/* Fila 1: Buscador + carrito */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+              <input
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition"
+                placeholder="Buscar productos..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            {isAdmin && (
+              <>
+                <button onClick={() => requirePin("add")}
+                  className="px-3 py-2 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-violet-500 to-pink-500 hover:opacity-90 transition">
+                  + Agregar
                 </button>
-              )}
-              <button onClick={() => setCartOpen(true)} className="relative w-10 h-10 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition">
-                <span className="text-xl">🛒</span>
-                {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">{cartCount}</span>}
+                <button onClick={logout} className="w-9 h-9 rounded-xl bg-red-900/50 text-red-400 flex items-center justify-center text-sm">🔓</button>
+              </>
+            )}
+            {search.toLowerCase() === "admin" && !isAdmin && (
+              <button onClick={() => { setSearch(""); requirePin("add"); }}
+                className="px-3 py-1.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-violet-500 to-pink-500">
+                Admin 🔐
               </button>
-            </div>
+            )}
+            <button onClick={() => setCartOpen(true)} className="relative w-10 h-10 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition shrink-0">
+              <span className="text-xl">🛒</span>
+              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">{cartCount}</span>}
+            </button>
           </div>
-          {/* Buscador */}
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
-            <input
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition"
-              placeholder="Buscar productos..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          {/* Barras móvil */}
-          <div className="sm:hidden flex gap-3">
-            <div className="flex-1 flex items-center gap-1">
-              <span className="text-xs text-emerald-400 font-bold shrink-0">🚚</span>
-              <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-                <div className="h-full rounded-full bg-emerald-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 6) * 100, 100)}%` }} />
+          {/* Fila 2: Logo + barras */}
+          <div className="flex items-center gap-3">
+            <img src="https://i.imgur.com/b5ixv0j.png" alt="B3D Studio" className="h-9 object-contain shrink-0" />
+            <div className="flex-1 flex flex-col gap-1">
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-emerald-400 font-bold shrink-0 w-6">🚚</span>
+                <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                  <div className="h-full rounded-full bg-emerald-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 6) * 100, 100)}%` }} />
+                </div>
+                <span className="text-xs text-gray-400 w-14 text-right" translate="no">{envioGratis ? "¡Gratis!" : `${cartCount}/6`}</span>
               </div>
-              <span className="text-xs text-gray-400" translate="no">{envioGratis ? "¡Gratis!" : `${cartCount}/6`}</span>
-            </div>
-            <div className="flex-1 flex items-center gap-1">
-              <span className="text-xs text-violet-400 font-bold shrink-0">🎉</span>
-              <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-                <div className="h-full rounded-full bg-violet-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 12) * 100, 100)}%` }} />
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-violet-400 font-bold shrink-0 w-6">🎉</span>
+                <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                  <div className="h-full rounded-full bg-violet-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 12) * 100, 100)}%` }} />
+                </div>
+                <span className="text-xs text-gray-400 w-14 text-right" translate="no">{descuento15 ? "¡Activo!" : `${cartCount}/12`}</span>
               </div>
-              <span className="text-xs text-gray-400" translate="no">{descuento15 ? "¡Activo!" : `${cartCount}/12`}</span>
             </div>
           </div>
         </div>
@@ -259,12 +239,12 @@ export default function Catalogo() {
 
       {/* Hero banner */}
       <div className="bg-gradient-to-r from-violet-900 via-gray-900 to-gray-950 px-4 py-5 border-b border-gray-800">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div>
-            <p className="text-white font-black text-lg">Llaveros 3D personalizados</p>
-            <p className="text-gray-400 text-xs mt-0.5">🚚 6 uds = Envío gratis · 🎉 12 uds = +15% desc.</p>
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-black text-lg leading-tight">{redes.bannerTitulo || "Llaveros 3D personalizados"}</p>
+            <p className="text-gray-400 text-xs mt-0.5">{redes.bannerSub || "🚚 6 uds = Envío gratis · 🎉 12 uds = +15% desc."}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {redes.whatsapp && <a href={redes.whatsapp} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"><img src="https://i.imgur.com/uZvUAKT.png" className="w-5 h-5 object-contain" /></a>}
             {redes.facebook && <a href={redes.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"><img src="https://i.imgur.com/7QH2a3k.png" className="w-5 h-5 object-contain" /></a>}
             {redes.tiktok && <a href={redes.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"><img src="https://i.imgur.com/ueKiFWH.png" className="w-5 h-5 object-contain" /></a>}
@@ -570,6 +550,21 @@ export default function Catalogo() {
                     className={`w-full px-4 py-2.5 rounded-xl border border-gray-700 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition ${inputCls}`} />
                 </div>
               ))}
+              <div className="border-t border-gray-700 pt-3">
+                <p className="text-xs font-black text-gray-300 mb-2">📝 Texto del banner</p>
+                <div>
+                  <label className="text-xs font-bold mb-1 block text-gray-400">Título principal</label>
+                  <input type="text" placeholder="Ej: Llaveros 3D personalizados" value={redesForm.bannerTitulo || ""}
+                    onChange={e => setRedesForm(f => ({ ...f, bannerTitulo: e.target.value }))}
+                    className={`w-full px-4 py-2.5 rounded-xl border border-gray-700 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition ${inputCls}`} />
+                </div>
+                <div className="mt-2">
+                  <label className="text-xs font-bold mb-1 block text-gray-400">Subtítulo</label>
+                  <input type="text" placeholder="Ej: 🚚 6 uds = Envío gratis..." value={redesForm.bannerSub || ""}
+                    onChange={e => setRedesForm(f => ({ ...f, bannerSub: e.target.value }))}
+                    className={`w-full px-4 py-2.5 rounded-xl border border-gray-700 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition ${inputCls}`} />
+                </div>
+              </div>
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={() => setRedesModal(false)} className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-gray-800 hover:bg-gray-700 transition">Cancelar</button>
