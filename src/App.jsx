@@ -60,13 +60,6 @@ export default function Catalogo() {
   const prevCartCount = useRef(0);
 
   useEffect(() => {
-    const prev = prevCartCount.current;
-    if (prev < 6 && cartCount >= 6) { setAnimEnvio(true); setTimeout(() => setAnimEnvio(false), 3500); }
-    if (prev < 12 && cartCount >= 12) { setAnimDescuento(true); setTimeout(() => setAnimDescuento(false), 3500); }
-    prevCartCount.current = cartCount;
-  }, [cartCount]);
-
-  useEffect(() => {
     const unsub = onSnapshot(collection(db, "productos"), (snapshot) => {
       const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setProducts(data);
@@ -151,6 +144,13 @@ export default function Catalogo() {
   const envio = envioGratis ? 0 : 34;
   const contraEntregaExtra = metodoPago === "Contra entrega" && !envioGratis ? 4 : 0;
   const totalFinal = cartTotal - descuentoMonto + envio + contraEntregaExtra;
+
+  useEffect(() => {
+    const prev = prevCartCount.current;
+    if (prev < 6 && cartCount >= 6) { setAnimEnvio(true); setTimeout(() => setAnimEnvio(false), 3500); }
+    if (prev < 12 && cartCount >= 12) { setAnimDescuento(true); setTimeout(() => setAnimDescuento(false), 3500); }
+    prevCartCount.current = cartCount;
+  }, [cartCount]);
 
   const saveProduct = async () => {
     if (!form.name || !form.price) return showToast("Completa nombre y precio", "#ef4444");
