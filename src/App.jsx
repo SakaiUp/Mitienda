@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 
@@ -55,6 +55,16 @@ export default function Catalogo() {
   const [redesModal, setRedesModal] = useState(false);
   const [redesForm, setRedesForm] = useState({ whatsapp: "", facebook: "", tiktok: "" });
   const [qtys, setQtys] = useState({});
+  const [animEnvio, setAnimEnvio] = useState(false);
+  const [animDescuento, setAnimDescuento] = useState(false);
+  const prevCartCount = React.useRef(0);
+
+  useEffect(() => {
+    const prev = prevCartCount.current;
+    if (prev < 6 && cartCount >= 6) { setAnimEnvio(true); setTimeout(() => setAnimEnvio(false), 3500); }
+    if (prev < 12 && cartCount >= 12) { setAnimDescuento(true); setTimeout(() => setAnimDescuento(false), 3500); }
+    prevCartCount.current = cartCount;
+  }, [cartCount]);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "productos"), (snapshot) => {
@@ -177,6 +187,45 @@ export default function Catalogo() {
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-white font-bold shadow-2xl text-sm"
           style={{ background: toast.color, animation: "slideIn 0.3s ease" }}>
           {toast.msg}
+        </div>
+      )}
+
+      {/* Animación camión - envío gratis */}
+      {animEnvio && (
+        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative z-10 text-center" style={{ animation: "popIn 0.4s ease" }}>
+            <div className="text-8xl mb-2" style={{ animation: "truckAnim 2.5s ease forwards" }}>🚚</div>
+            <div className="bg-emerald-500 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-2xl" style={{ animation: "slideUp 0.5s ease 0.3s both" }}>
+              <p>¡Envío gratis desbloqueado!</p>
+              <p className="text-sm font-bold opacity-80 mt-1">🎊 ¡Felicidades!</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Animación confeti - 15% descuento */}
+      {animDescuento && (
+        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" />
+          {/* Confeti */}
+          {[...Array(20)].map((_, i) => (
+            <div key={i} className="absolute w-3 h-3 rounded-sm"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-10px`,
+                background: ["#f43f5e","#7c3aed","#f59e0b","#06b6d4","#10b981","#d946ef"][i % 6],
+                animation: `confetiFall ${1.5 + Math.random()}s ease ${Math.random() * 0.5}s forwards`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+              }} />
+          ))}
+          <div className="relative z-10 text-center" style={{ animation: "popIn 0.4s ease" }}>
+            <div className="text-8xl mb-2" style={{ animation: "bounce 0.6s ease infinite alternate" }}>🎉</div>
+            <div className="bg-violet-600 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-2xl" style={{ animation: "slideUp 0.5s ease 0.3s both" }}>
+              <p>¡15% de descuento obtenido!</p>
+              <p className="text-sm font-bold opacity-80 mt-1">🎊 + Envío gratis incluido</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -667,6 +716,11 @@ export default function Catalogo() {
 
       <style>{`
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes truckAnim { 0% { transform: translateX(-200px); opacity: 0; } 30% { transform: translateX(0); opacity: 1; } 70% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(200px); opacity: 0; } }
+        @keyframes bounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-15px) scale(1.1); } }
+        @keyframes confetiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
       `}</style>
     </div>
