@@ -214,9 +214,8 @@ export default function Catalogo() {
               {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">{cartCount}</span>}
             </button>
           </div>
-          {/* Fila 2: Logo + barras */}
+          {/* Fila 2: barras */}
           <div className="flex items-center gap-3">
-            <img src="https://i.imgur.com/b5ixv0j.png" alt="B3D Studio" className="h-9 object-contain shrink-0" />
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center gap-1">
                 <span className="text-xs text-emerald-400 font-bold shrink-0 w-6">🚚</span>
@@ -240,9 +239,12 @@ export default function Catalogo() {
       {/* Hero banner */}
       <div className="bg-gradient-to-r from-violet-900 via-gray-900 to-gray-950 px-4 py-5 border-b border-gray-800">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-white font-black text-lg leading-tight">{redes.bannerTitulo || "Llaveros 3D personalizados"}</p>
-            <p className="text-gray-400 text-xs mt-0.5">{redes.bannerSub || "🚚 6 uds = Envío gratis · 🎉 12 uds = +15% desc."}</p>
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <img src="https://i.imgur.com/b5ixv0j.png" alt="B3D Studio" className="h-14 w-14 object-contain shrink-0" />
+            <div className="min-w-0">
+              <p className="text-white font-black text-lg leading-tight">{redes.bannerTitulo || "Llaveros 3D personalizados"}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{redes.bannerSub || "🚚 6 uds = Envío gratis · 🎉 12 uds = +15% desc."}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {redes.whatsapp && <a href={redes.whatsapp} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"><img src="https://i.imgur.com/uZvUAKT.png" className="w-5 h-5 object-contain" /></a>}
