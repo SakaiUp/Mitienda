@@ -569,10 +569,9 @@ export default function Catalogo() {
                 <button onClick={() => {
                   if (!clienteNombre || !clienteDireccion || !clienteCelular) { setAcordeonDatos(true); return showToast("Completa los datos de envío", "#ef4444"); }
                   if (!metodoPago) { setAcordeonPago(true); return showToast("Selecciona un método de pago", "#ef4444"); }
-                  const lista = cart.map(i => `• ${i.name} x${i.qty} — Q${(i.price * i.qty).toFixed(2)}`).join("\n");
-                  const extras = `${descuento15 ? `\n🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n${envioGratis ? "🚚 Envío: Gratis" : "🚚 Envío: Q34.00"}${contraEntregaExtra > 0 ? "\n🚚 Cargo contra entrega: +Q4.00" : ""}`;
-                  const datosCliente = `\n\n👤 Nombre: ${clienteNombre}\n📱 Celular: ${clienteCelular}\n📍 Dirección: ${clienteDireccion}\n💳 Pago: ${metodoPago}${clienteNota ? `\n📝 Nota: ${clienteNota}` : ""}`;
-                  const mensaje = `¡Hola! Quiero hacer un pedido 🛒\n\n${lista}${extras}\n\n*Total: Q${totalFinal.toFixed(2)}*${datosCliente}`;
+                  const lista = cart.map(i => `  • ${i.qty}x ${i.name} (Q${(i.price * i.qty).toFixed(2)})`).join("\n");
+                  const desglose = `\n💰 *Desglose:*\n  Subtotal: Q${cartTotal.toFixed(2)}${descuento15 ? `\n  🎉 Descuento 15%: -Q${descuentoMonto.toFixed(2)}` : ""}\n  🚚 Envío: ${envioGratis ? "Gratis" : "Q34.00"}${contraEntregaExtra > 0 ? "\n  Cargo contra entrega: +Q4.00" : ""}`;
+                  const mensaje = `📦 *NUEVO PEDIDO - B3D Studio*\n\n👤 *Cliente:* ${clienteNombre}\n📱 *Celular:* ${clienteCelular}\n📍 *Dirección:* ${clienteDireccion}${clienteNota ? `\n📝 *Nota:* ${clienteNota}` : ""}\n\n🛒 *Productos:*\n${lista}${desglose}\n\n💵 *Total: Q${totalFinal.toFixed(2)}*\n💳 *Pago:* ${metodoPago}`;
                   window.open(`https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`, "_blank");
                 }} className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg hover:opacity-90 transition active:scale-95">
                   Pedir por WhatsApp 💬
