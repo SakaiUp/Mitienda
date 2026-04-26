@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 
@@ -57,7 +57,7 @@ export default function Catalogo() {
   const [qtys, setQtys] = useState({});
   const [animEnvio, setAnimEnvio] = useState(false);
   const [animDescuento, setAnimDescuento] = useState(false);
-  const prevCartCount = React.useRef(0);
+  const prevCartCount = useRef(0);
 
   useEffect(() => {
     const prev = prevCartCount.current;
