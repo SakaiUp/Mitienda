@@ -148,7 +148,9 @@ export default function Catalogo() {
   const cartCount = cart.reduce((acc, i) => acc + i.qty, 0);
   const envioGratis = cartCount >= 8;
   const descuento25 = cartCount >= 20;
-  const descuentoMonto = descuento25 ? cartTotal * 0.25 : 0;
+  const PRECIO_MAX_DESCUENTO = 35;
+  const totalDescuentable = descuento25 ? cart.filter(i => i.price <= PRECIO_MAX_DESCUENTO).reduce((acc, i) => acc + i.price * i.qty, 0) : 0;
+  const descuentoMonto = totalDescuentable * 0.25;
   const envio = envioGratis ? 0 : 34;
   const contraEntregaExtra = metodoPago === "Contra entrega" && !envioGratis ? 4 : 0;
   const totalFinal = cartTotal - descuentoMonto + envio + contraEntregaExtra;
@@ -496,15 +498,25 @@ export default function Catalogo() {
                   <div className="text-5xl mb-3">🛒</div>
                   <p className="text-gray-500">Tu carrito está vacío</p>
                 </div>
-              ) : cart.map(item => (
+              ) : cart.map(item => {
+                const tieneDescuento = descuento25 && item.price <= PRECIO_MAX_DESCUENTO;
+                const precioConDesc = item.price * 0.75;
+                return (
                 <div key={item.id} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-800">
                   <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-700 flex items-center justify-center">
                     {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" /> : <span className="text-3xl">{item.emoji || "🛍️"}</span>}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-black text-sm leading-tight mb-0.5">{item.name}</p>
-                    <p className="text-pink-400 font-black text-base" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
-                    <p className="text-gray-500 text-xs" translate="no">Q{parseFloat(item.price).toFixed(2)} c/u</p>
+                    {tieneDescuento ? (
+                      <>
+                        <p className="text-gray-500 text-sm line-through" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
+                        <p className="text-violet-400 font-black text-base" translate="no">Q{(precioConDesc * item.qty).toFixed(2)} <span className="text-xs font-bold">(-25%)</span></p>
+                      </>
+                    ) : (
+                      <p className="text-pink-400 font-black text-base" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
+                    )}
+                    <p className="text-gray-500 text-xs" translate="no">Q{tieneDescuento ? precioConDesc.toFixed(2) : parseFloat(item.price).toFixed(2)} c/u</p>
                   </div>
                   <div className="flex flex-col items-center gap-1 shrink-0">
                     <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 rounded-xl bg-gray-700 hover:bg-gray-600 font-black text-sm flex items-center justify-center">+</button>
@@ -513,7 +525,8 @@ export default function Catalogo() {
                   </div>
                   <button onClick={() => removeFromCart(item.id)} className="text-red-400 text-lg ml-1 shrink-0">✕</button>
                 </div>
-              ))}
+                );
+              })}
             </div>
             {cart.length > 0 && (
               <div className="p-4 border-t border-gray-800 space-y-3">
