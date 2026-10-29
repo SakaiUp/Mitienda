@@ -28,7 +28,10 @@ const COLORS = [
 export default function Catalogo() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try { const saved = localStorage.getItem("b3d_cart"); return saved ? JSON.parse(saved) : []; }
+    catch { return []; }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -74,6 +77,11 @@ export default function Catalogo() {
     });
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem("b3d_cart", JSON.stringify(cart)); }
+    catch {}
+  }, [cart]);
 
   const showToast = (msg, color = "#10b981") => {
     setToast({ msg, color });
