@@ -59,7 +59,8 @@ export default function Catalogo() {
   const [redesForm, setRedesForm] = useState({ whatsapp: "", facebook: "", tiktok: "" });
   const [qtys, setQtys] = useState({});
   const [animEnvio, setAnimEnvio] = useState(false);
-  const [animDescuento, setAnimDescuento] = useState(false);
+  const [animDescuento15, setAnimDescuento15] = useState(false);
+  const [animDescuento25, setAnimDescuento25] = useState(false);
   const prevCartCount = useRef(0);
 
   useEffect(() => {
@@ -146,19 +147,22 @@ export default function Catalogo() {
 
   const cartTotal = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   const cartCount = cart.reduce((acc, i) => acc + i.qty, 0);
-  const envioGratis = cartCount >= 8;
+  const envioGratis = cartCount >= 6;
+  const descuento15 = cartCount >= 12 && cartCount < 20;
   const descuento25 = cartCount >= 20;
   const PRECIO_MAX_DESCUENTO = 35;
-  const totalDescuentable = descuento25 ? cart.filter(i => i.price <= PRECIO_MAX_DESCUENTO).reduce((acc, i) => acc + i.price * i.qty, 0) : 0;
-  const descuentoMonto = totalDescuentable * 0.25;
-  const envio = envioGratis ? 0 : 34;
+  const pctDescuento = descuento25 ? 0.25 : descuento15 ? 0.15 : 0;
+  const totalDescuentable = pctDescuento > 0 ? cart.filter(i => i.price <= PRECIO_MAX_DESCUENTO).reduce((acc, i) => acc + i.price * i.qty, 0) : 0;
+  const descuentoMonto = totalDescuentable * pctDescuento;
+  const envio = envioGratis ? 0 : 39;
   const contraEntregaExtra = metodoPago === "Contra entrega" && !envioGratis ? 4 : 0;
   const totalFinal = cartTotal - descuentoMonto + envio + contraEntregaExtra;
 
   useEffect(() => {
     const prev = prevCartCount.current;
-    if (prev < 8 && cartCount >= 8) { setAnimEnvio(true); setTimeout(() => setAnimEnvio(false), 3500); }
-    if (prev < 20 && cartCount >= 20) { setAnimDescuento(true); setTimeout(() => setAnimDescuento(false), 3500); }
+    if (prev < 6 && cartCount >= 6) { setAnimEnvio(true); setTimeout(() => setAnimEnvio(false), 3500); }
+    if (prev < 12 && cartCount >= 12) { setAnimDescuento15(true); setTimeout(() => setAnimDescuento15(false), 3500); }
+    if (prev < 20 && cartCount >= 20) { setAnimDescuento25(true); setTimeout(() => setAnimDescuento25(false), 3500); }
     prevCartCount.current = cartCount;
   }, [cartCount]);
 
@@ -214,11 +218,32 @@ export default function Catalogo() {
         </div>
       )}
 
-      {/* Animación confeti - 25% descuento */}
-      {animDescuento && (
+      {/* Animación estrellas - 15% descuento */}
+      {animDescuento15 && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" />
-          {/* Confeti */}
+          {[...Array(15)].map((_, i) => (
+            <div key={i} className="absolute text-xl"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-20px`,
+                animation: `confetiFall ${1.5 + Math.random()}s ease ${Math.random() * 0.4}s forwards`,
+              }}>⭐</div>
+          ))}
+          <div className="relative z-10 text-center" style={{ animation: "popIn 0.4s ease" }}>
+            <div className="text-8xl mb-2" style={{ animation: "bounce 0.6s ease infinite alternate" }}>🎉</div>
+            <div className="bg-amber-500 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-2xl" style={{ animation: "slideUp 0.5s ease 0.3s both" }}>
+              <p>¡15% de descuento obtenido!</p>
+              <p className="text-sm font-bold opacity-80 mt-1">🚚 + Envío gratis incluido</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Animación confeti - 25% descuento */}
+      {animDescuento25 && (
+        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" />
           {[...Array(20)].map((_, i) => (
             <div key={i} className="absolute w-3 h-3 rounded-sm"
               style={{
@@ -230,10 +255,10 @@ export default function Catalogo() {
               }} />
           ))}
           <div className="relative z-10 text-center" style={{ animation: "popIn 0.4s ease" }}>
-            <div className="text-8xl mb-2" style={{ animation: "bounce 0.6s ease infinite alternate" }}>🎉</div>
+            <div className="text-8xl mb-2" style={{ animation: "bounce 0.6s ease infinite alternate" }}>🎊</div>
             <div className="bg-violet-600 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-2xl" style={{ animation: "slideUp 0.5s ease 0.3s both" }}>
               <p>¡25% de descuento obtenido!</p>
-              <p className="text-sm font-bold opacity-80 mt-1">🎊 + Envío gratis incluido</p>
+              <p className="text-sm font-bold opacity-80 mt-1">🎉 ¡El mejor precio!</p>
             </div>
           </div>
         </div>
@@ -279,12 +304,19 @@ export default function Catalogo() {
               <div className="flex items-center gap-1">
                 <span className="text-xs text-emerald-400 font-bold shrink-0 w-6">🚚</span>
                 <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-                  <div className="h-full rounded-full bg-emerald-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 8) * 100, 100)}%` }} />
+                  <div className="h-full rounded-full bg-emerald-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 6) * 100, 100)}%` }} />
                 </div>
-                <span className="text-xs text-gray-400 w-14 text-right" translate="no">{envioGratis ? "¡Gratis!" : `${cartCount}/8`}</span>
+                <span className="text-xs text-gray-400 w-14 text-right" translate="no">{envioGratis ? "¡Gratis!" : `${cartCount}/6`}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs text-violet-400 font-bold shrink-0 w-6">🎉</span>
+                <span className="text-xs text-amber-400 font-bold shrink-0 w-6">🎉</span>
+                <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                  <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 12) * 100, 100)}%` }} />
+                </div>
+                <span className="text-xs text-gray-400 w-14 text-right" translate="no">{descuento15 || descuento25 ? "¡Activo!" : `${cartCount}/12`}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-violet-400 font-bold shrink-0 w-6">🎊</span>
                 <div className="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
                   <div className="h-full rounded-full bg-violet-400 transition-all duration-500" style={{ width: `${Math.min((cartCount / 20) * 100, 100)}%` }} />
                 </div>
@@ -302,7 +334,7 @@ export default function Catalogo() {
             <img src="https://i.imgur.com/b5ixv0j.png" alt="B3D Studio" className="h-14 w-14 object-contain shrink-0" />
             <div className="min-w-0">
               <p className="text-white font-black text-lg leading-tight">{redes.bannerTitulo || "Llaveros 3D personalizados"}</p>
-              <p className="text-gray-400 text-xs mt-0.5">{redes.bannerSub || "🚚 8 uds = Envío gratis · 🎉 20 uds = +25% desc."}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{redes.bannerSub || "🚚 6 uds = Envío gratis · 🎉 12 uds = 15% · 🎊 20 uds = 25%"}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -462,8 +494,9 @@ export default function Catalogo() {
                   <div className="flex items-center gap-2 text-sm px-3 py-2 rounded-xl bg-gray-800"><span>📦</span><span className="font-bold">Stock:</span><span className="text-gray-400">{p.stock} disponibles</span></div>
                 </div>
                 <div className="rounded-xl p-3 mb-4 bg-gray-800 space-y-1">
-                  <p className="text-emerald-400 font-bold text-sm">🚚 8 unidades: Envío gratis</p>
-                  <p className="text-violet-400 font-bold text-sm">🎉 20 unidades: Envío gratis + 25% descuento</p>
+                  <p className="text-emerald-400 font-bold text-sm">🚚 6 unidades: Envío gratis</p>
+                  <p className="text-amber-400 font-bold text-sm">🎉 12–19 unidades: Envío gratis + 15% descuento</p>
+                  <p className="text-violet-400 font-bold text-sm">🎊 20+ unidades: Envío gratis + 25% descuento</p>
                 </div>
                 <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-gray-800 mb-3">
                   <span className="text-sm font-bold text-gray-400">Cantidad:</span>
@@ -499,8 +532,8 @@ export default function Catalogo() {
                   <p className="text-gray-500">Tu carrito está vacío</p>
                 </div>
               ) : cart.map(item => {
-                const tieneDescuento = descuento25 && item.price <= PRECIO_MAX_DESCUENTO;
-                const precioConDesc = item.price * 0.75;
+                const tieneDescuento = (descuento15 || descuento25) && item.price <= PRECIO_MAX_DESCUENTO;
+                const precioConDesc = item.price * (1 - pctDescuento);
                 return (
                 <div key={item.id} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-800">
                   <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-700 flex items-center justify-center">
@@ -511,7 +544,7 @@ export default function Catalogo() {
                     {tieneDescuento ? (
                       <>
                         <p className="text-gray-500 text-sm line-through" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
-                        <p className="text-violet-400 font-black text-base" translate="no">Q{(precioConDesc * item.qty).toFixed(2)} <span className="text-xs font-bold">(-25%)</span></p>
+                        <p className="text-violet-400 font-black text-base" translate="no">Q{(precioConDesc * item.qty).toFixed(2)} <span className="text-xs font-bold">(-{pctDescuento * 100}%)</span></p>
                       </>
                     ) : (
                       <p className="text-pink-400 font-black text-base" translate="no">Q{(item.price * item.qty).toFixed(2)}</p>
@@ -532,13 +565,16 @@ export default function Catalogo() {
               <div className="p-4 border-t border-gray-800 space-y-3">
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-sm"><span className="text-gray-400">Subtotal:</span><span className="font-bold" translate="no">Q{cartTotal.toFixed(2)}</span></div>
-                  {descuento25 && <div className="flex justify-between text-sm"><span className="text-violet-400 font-bold">🎉 Descuento 25%:</span><span className="text-violet-400 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span></div>}
+                  {descuento15 && !descuento25 && <div className="flex justify-between text-sm"><span className="text-amber-400 font-bold">🎉 Descuento 15%:</span><span className="text-amber-400 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span></div>}
+                  {descuento25 && <div className="flex justify-between text-sm"><span className="text-violet-400 font-bold">🎊 Descuento 25%:</span><span className="text-violet-400 font-bold" translate="no">-Q{descuentoMonto.toFixed(2)}</span></div>}
                   <div className="flex justify-between text-sm">
                     <span className={envioGratis ? "text-emerald-400 font-bold" : "text-gray-400"}>🚚 Envío:</span>
-                    <span className={envioGratis ? "text-emerald-400 font-bold" : "font-bold"} translate="no">{envioGratis ? "¡Gratis!" : "Q34.00"}</span>
+                    <span className={envioGratis ? "text-emerald-400 font-bold" : "font-bold"} translate="no">{envioGratis ? "¡Gratis!" : "Q39.00"}</span>
                   </div>
                   {contraEntregaExtra > 0 && <div className="flex justify-between text-sm"><span className="text-amber-400 font-bold">Cargo contra entrega:</span><span className="text-amber-400 font-bold" translate="no">+Q4.00</span></div>}
-                  {!envioGratis && <p className="text-xs text-amber-400 font-bold text-center">Agrega {8 - cartCount} más para envío gratis 🚚</p>}
+                  {!envioGratis && <p className="text-xs text-amber-400 font-bold text-center">Agrega {6 - cartCount} más para envío gratis 🚚</p>}
+                  {envioGratis && !descuento15 && !descuento25 && <p className="text-xs text-amber-400 font-bold text-center">Agrega {12 - cartCount} más para 15% de descuento 🎉</p>}
+                  {descuento15 && <p className="text-xs text-violet-400 font-bold text-center">Agrega {20 - cartCount} más para 25% de descuento 🎊</p>}
                   <div className="flex justify-between items-center pt-2 border-t border-gray-700">
                     <span className="font-black text-lg">Total:</span>
                     <span className="font-black text-2xl text-pink-400" translate="no">Q{totalFinal.toFixed(2)}</span>
@@ -591,7 +627,8 @@ export default function Catalogo() {
                   if (!clienteNombre || !clienteDireccion || !clienteCelular) { setAcordeonDatos(true); return showToast("Completa los datos de envío", "#ef4444"); }
                   if (!metodoPago) { setAcordeonPago(true); return showToast("Selecciona un método de pago", "#ef4444"); }
                   const lista = cart.map(i => `  • ${i.qty}x ${i.name} (Q${(i.price * i.qty).toFixed(2)})`).join("\n");
-                  const desglose = `\n💰 *Desglose:*\n  Subtotal: Q${cartTotal.toFixed(2)}${descuento25 ? `\n  🎉 Descuento 25%: -Q${descuentoMonto.toFixed(2)}` : ""}\n  🚚 Envío: ${envioGratis ? "Gratis" : "Q34.00"}${contraEntregaExtra > 0 ? "\n  Cargo contra entrega: +Q4.00" : ""}`;
+                  const descLabel = descuento25 ? "🎊 Descuento 25%" : descuento15 ? "🎉 Descuento 15%" : "";
+                  const desglose = `\n💰 *Desglose:*\n  Subtotal: Q${cartTotal.toFixed(2)}${descuentoMonto > 0 ? `\n  ${descLabel}: -Q${descuentoMonto.toFixed(2)}` : ""}\n  🚚 Envío: ${envioGratis ? "Gratis" : "Q39.00"}${contraEntregaExtra > 0 ? "\n  Cargo contra entrega: +Q4.00" : ""}`;
                   const mensaje = `📦 *NUEVO PEDIDO - B3D Studio*\n\n👤 *Cliente:* ${clienteNombre}\n📱 *Celular:* ${clienteCelular}\n📍 *Dirección:* ${clienteDireccion}${clienteNota ? `\n📝 *Nota:* ${clienteNota}` : ""}\n\n🛒 *Productos:*\n${lista}${desglose}\n\n💵 *Total: Q${totalFinal.toFixed(2)}*\n💳 *Pago:* ${metodoPago}`;
                   window.open(`https://wa.me/50231511875?text=${encodeURIComponent(mensaje)}`, "_blank");
                 }} className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg hover:opacity-90 transition active:scale-95">
@@ -631,7 +668,7 @@ export default function Catalogo() {
                 </div>
                 <div className="mt-2">
                   <label className="text-xs font-bold mb-1 block text-gray-400">Subtítulo</label>
-                  <input type="text" placeholder="Ej: 🚚 8 uds = Envío gratis..." value={redesForm.bannerSub || ""}
+                  <input type="text" placeholder="Ej: 🚚 6 uds = Envío gratis · 🎉 12–19 uds = 15% · 🎊 20+ uds = 25%..." value={redesForm.bannerSub || ""}
                     onChange={e => setRedesForm(f => ({ ...f, bannerSub: e.target.value }))}
                     className={`w-full px-4 py-2.5 rounded-xl border border-gray-700 text-sm outline-none focus:ring-2 focus:ring-violet-500 transition ${inputCls}`} />
                 </div>
